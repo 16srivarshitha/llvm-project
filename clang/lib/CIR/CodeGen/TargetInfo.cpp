@@ -68,8 +68,32 @@ class NVPTXTargetCIRGenInfo : public TargetCIRGenInfo {
 public:
   NVPTXTargetCIRGenInfo(CIRGenTypes &cgt)
       : TargetCIRGenInfo(std::make_unique<NVPTXABIInfo>(cgt)) {}
+
+  void setCUDAKernelCallingConvention(cir::CallingConv &conv) const override {
+    conv = cir::CallingConv::PTX_Kernel;
+  }
+}; 
+
+class AMDGPUABIInfo : public ABIInfo {
+public:
+  AMDGPUABIInfo(CIRGenTypes &cgt) : ABIInfo(cgt) {}
 };
-} // namespace
+
+class AMDGPUTargetCIRGenInfo : public TargetCIRGenInfo {
+public:
+  AMDGPUTargetCIRGenInfo(CIRGenTypes &cgt)
+      : TargetCIRGenInfo(std::make_unique<AMDGPUABIInfo>(cgt)) {}
+
+  void setCUDAKernelCallingConvention(cir::CallingConv &conv) const override {
+    // HIP kernels use SPIR_KERNEL calling convention for AMDGPU
+    conv = cir::CallingConv::SpirKernel;
+  }
+};
+} //namespace
+std::unique_ptr<TargetCIRGenInfo>
+clang::CIRGen::createAMDGPUTargetCIRGenInfo(CIRGenTypes &cgt) {
+  return std::make_unique<AMDGPUTargetCIRGenInfo>(cgt);
+}
 
 std::unique_ptr<TargetCIRGenInfo>
 clang::CIRGen::createNVPTXTargetCIRGenInfo(CIRGenTypes &cgt) {

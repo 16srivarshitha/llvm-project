@@ -259,6 +259,9 @@ const TargetCIRGenInfo &CIRGenModule::getTargetCIRGenInfo() {
   case llvm::Triple::nvptx64:
     theTargetCIRGenInfo = createNVPTXTargetCIRGenInfo(genTypes);
     return *theTargetCIRGenInfo;
+  case llvm::Triple::amdgcn:
+    theTargetCIRGenInfo = createAMDGPUTargetCIRGenInfo(genTypes);
+    return *theTargetCIRGenInfo;
   }
 }
 
@@ -2306,7 +2309,8 @@ void CIRGenModule::setCIRFunctionAttributes(GlobalDecl globalDecl,
   // cir::CallingConv is empty and we've not yet added calling-conv to FuncOop,
   // this isn't really useful here.  This should call func.setCallingConv/etc
   // later.
-  assert(!cir::MissingFeatures::opFuncCallingConv());
+  if (callingConv != cir::CallingConv::C)
+    func.setCallingConv(callingConv);
 }
 
 void CIRGenModule::setFunctionAttributes(GlobalDecl globalDecl,

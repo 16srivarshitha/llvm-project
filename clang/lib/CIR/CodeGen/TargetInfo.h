@@ -36,6 +36,7 @@ bool isEmptyFieldForLayout(const ASTContext &context, const FieldDecl *fd);
 /// if the [[no_unique_address]] attribute would have made them empty.
 bool isEmptyRecordForLayout(const ASTContext &context, QualType t);
 
+
 class CIRGenFunction;
 
 class TargetCIRGenInfo {
@@ -54,6 +55,10 @@ public:
     return cir::LangAddressSpaceAttr::get(&info->cgt.getMLIRContext(),
                                           cir::LangAddressSpace::Default);
   }
+
+  virtual void setCUDAKernelCallingConvention(cir::CallingConv &conv) const {}
+std::unique_ptr<TargetCIRGenInfo>
+createAMDGPUTargetCIRGenInfo(CIRGenTypes &cgt);
 
   /// Determine whether a call to an unprototyped functions under
   /// the given calling convention should use the variadic

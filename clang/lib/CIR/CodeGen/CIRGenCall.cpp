@@ -1005,8 +1005,15 @@ CIRGenTypes::arrangeFunctionDeclaration(const FunctionDecl *fd) {
 
   assert(isa<FunctionType>(funcTy));
   // TODO: setCUDAKernelCallingConvention
-  assert(!cir::MissingFeatures::cudaSupport());
-
+  if (fd->hasAttr<CUDAGlobalAttr>()) {
+    // TODO: Propagate CUDA kernel calling convention through CIRGenFunctionInfo.
+    // CIRGenFunctionInfo::getExtInfo() currently hardcodes CallingConv(0).
+    // Once that is fixed, call:
+    //   cgm.getTargetCIRGenInfo().setCUDAKernelCallingConvention(ft);
+    //   funcTy = ft->getCanonicalTypeUnqualified();
+    // mirroring OG CodeGen's setCUDAKernelCallingConvention in CGCall.cpp.
+    assert(!cir::MissingFeatures::cudaSupport());
+  }
   // When declaring a function without a prototype, always use a non-variadic
   // type.
   if (CanQual<FunctionNoProtoType> noProto =

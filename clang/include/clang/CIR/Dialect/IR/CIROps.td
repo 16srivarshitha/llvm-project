@@ -3388,8 +3388,11 @@ def CIR_OptionalPriorityAttr : OptionalAttr<
 
 // TODO(CIR): CallingConv is a placeholder here so we can use it in
 // infrastructure calls, but it currently has no values.
-def CIR_CallingConv : CIR_I32EnumAttr<"CallingConv", "calling convention", []>;
-
+def CIR_CallingConv : CIR_I32EnumAttr<"CallingConv", "calling convention", [
+  I32EnumAttrCase<"C", 0, "ccc">,
+  I32EnumAttrCase<"PTX_Kernel", 71, "ptx_kernel">,
+  I32EnumAttrCase<"SpirKernel", 76, "spir_kernel">
+  ]>;
 def CIR_FuncOp : CIR_Op<"func", [
   AutomaticAllocationScope, CallableOpInterface, FunctionOpInterface,
   DeclareOpInterfaceMethods<CIRGlobalValueInterface>,
@@ -3479,6 +3482,7 @@ def CIR_FuncOp : CIR_Op<"func", [
     OptionalAttr<DictArrayAttr>:$res_attrs,
     OptionalAttr<FlatSymbolRefAttr>:$aliasee,
     OptionalAttr<CIR_SideEffect>:$side_effect,
+    OptionalAttr<CIR_CallingConv>:$calling_conv,
     OptionalAttr<FlatSymbolRefAttr>:$personality,
     CIR_OptionalPriorityAttr:$global_ctor_priority,
     CIR_OptionalPriorityAttr:$global_dtor_priority,
